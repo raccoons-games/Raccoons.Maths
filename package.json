@@ -1,0 +1,24 @@
+{
+  "name": "com.raccoons.maths",
+  "displayName": "Raccoons Maths",
+  "version": "0.1.0",
+  "description": "Simple solutions for various  math problems.",
+  "unity": "2018.1",
+  "author": "Raccoons Games",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/raccoons-games/Raccoons.Maths.git"
+  },
+  "keywords": [
+    "unity",
+    "framework",
+    "math",
+    "random",
+    "multipliers"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/raccoons-games/Raccoons.Maths/issues"
+  },
+  "homepage": "https://github.com/raccoons-games/Raccoons.Maths#readme"
+}
