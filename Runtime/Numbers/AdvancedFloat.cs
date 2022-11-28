@@ -21,6 +21,11 @@ namespace Raccoons.Maths.Numbers
         private bool _earlyModificatorsNeedSort = false;
         private bool _lateModificatorsNeedSort = false;
 
+        public AdvancedFloat(float initialValue)
+        {
+            this.initialValue = initialValue;
+        }
+
         public event EventHandler<float> OnValueChanged;
         public event EventHandler<FloatModificator> OnModificatorAdded;
         public event EventHandler<FloatModificator> OnModificatorRemoved;
