@@ -21,7 +21,7 @@ namespace Raccoons.Maths.Numbers
         private bool _earlyModificatorsNeedSort = false;
         private bool _lateModificatorsNeedSort = false;
 
-        public AdvancedFloat(float initialValue)
+        public AdvancedFloat(float initialValue = 0)
         {
             this.initialValue = initialValue;
         }
