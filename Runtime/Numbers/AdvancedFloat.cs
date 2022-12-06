@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 namespace Raccoons.Maths.Numbers
@@ -9,10 +10,22 @@ namespace Raccoons.Maths.Numbers
     [System.Serializable]
     public class AdvancedFloat
     {
+        [Flags]
+        public enum LoggingFlags
+        {
+            None = 0,
+            Modificators = 1,
+            Value = 2,
+            InitialValue = 4
+        }
+
         private const int MAX_MODIFICATOR_ORDER = 9;
 
         [SerializeField]
         private float initialValue;
+
+        [SerializeField]
+        private bool addModificatorOnceOnly = true;
 
         private List<FloatModificator>[] _groupedModificators = new List<FloatModificator>[MAX_MODIFICATOR_ORDER];
         private List<FloatModificator> _earlyModificators = new List<FloatModificator>();
@@ -22,13 +35,13 @@ namespace Raccoons.Maths.Numbers
         private bool _earlyModificatorsNeedSort = false;
         private bool _lateModificatorsNeedSort = false;
 
-        public AdvancedFloat(float initialValue = 0)
-        {
-            this.initialValue = initialValue;
-        }
+        private string _loggingTag;
+        private LoggingFlags _logging;
 
-        public AdvancedFloat() : this(0)
+        public AdvancedFloat(float initialValue = 0, bool addModificatorOnceOnly = true)
         {
+            SetInitialValue(initialValue);
+            AddModificatorOnceOnly = addModificatorOnceOnly;
         }
 
         public event EventHandler<float> OnValueChanged;
@@ -38,6 +51,9 @@ namespace Raccoons.Maths.Numbers
         public bool NeedsRecalculation { get; private set; } = false;
         public float Value => float.IsNaN(_cachedValue) ? InitialValue : _cachedValue;
         public float InitialValue { get => initialValue; }
+        public bool AddModificatorOnceOnly { get => addModificatorOnceOnly; set => addModificatorOnceOnly = value; }
+        public string LoggingTag { get => string.IsNullOrEmpty(_loggingTag)?"":$"[{_loggingTag}]"; }
+        public LoggingFlags Logging { get => _logging; }
 
         public IEnumerable<FloatModificator> GetAllOrderedModificators()
         {
@@ -78,7 +94,13 @@ namespace Raccoons.Maths.Numbers
         public void SetInitialValue(float newValue, bool autoRecalculate = true)
         {
             initialValue = newValue;
+            LogInitialValue();
             SetDirty(autoRecalculate);
+        }
+        
+        private bool IsAllowedToAdd(IEnumerable<FloatModificator> group, FloatModificator floatModificator)
+        {
+            return !AddModificatorOnceOnly || !group.Contains(floatModificator);
         }
 
         public void AddModificator(FloatModificator modificator, bool autoRecalculate = true)
@@ -90,7 +112,7 @@ namespace Raccoons.Maths.Numbers
                     _groupedModificators[modificator.Order] = new List<FloatModificator>();
                 }
                 List<FloatModificator> modificatorGroup = _groupedModificators[modificator.Order];
-                if (!modificatorGroup.Contains(modificator))
+                if (IsAllowedToAdd(modificatorGroup, modificator))
                 {
                     modificatorGroup.Add(modificator);
                 }
@@ -101,7 +123,7 @@ namespace Raccoons.Maths.Numbers
             }
             else if (modificator.Order < 0)
             {
-                if (!_earlyModificators.Contains(modificator))
+                if (IsAllowedToAdd(_earlyModificators, modificator))
                 {
                     _earlyModificators.Add(modificator);
                     _earlyModificatorsNeedSort = true;
@@ -113,7 +135,7 @@ namespace Raccoons.Maths.Numbers
             }
             else if (modificator.Order > MAX_MODIFICATOR_ORDER)
             {
-                if (!_lateModificators.Contains(modificator))
+                if (IsAllowedToAdd(_lateModificators, modificator))
                 {
                     _lateModificators.Add(modificator);
                     _lateModificatorsNeedSort = true;
@@ -123,6 +145,7 @@ namespace Raccoons.Maths.Numbers
                     return;
                 }
             }
+            LogModificatorAction(modificator, "added");
             OnModificatorAdded?.Invoke(this, modificator);
             SetDirty(autoRecalculate);
         }
@@ -161,8 +184,8 @@ namespace Raccoons.Maths.Numbers
                     return;
                 }
             }
+            LogModificatorAction(modificator, "removed");
             OnModificatorRemoved?.Invoke(this, modificator);
-
             SetDirty(autoRecalculate);
         }
 
@@ -202,16 +225,50 @@ namespace Raccoons.Maths.Numbers
             if (Value != newValue)
             {
                 _cachedValue = newValue;
+                LogValue();
                 OnValueChanged?.Invoke(this, Value);
             }
         }
 
         public void RemoveAllModificators(bool autoRecalculate = true)
         {
-            _groupedModificators = new List<FloatModificator>[MAX_MODIFICATOR_ORDER];
+            _groupedModificators = new List<FloatModificator>[MAX_MODIFICATOR_ORDER + 1];
             _earlyModificators = new List<FloatModificator>();
             _lateModificators = new List<FloatModificator>();
             SetDirty(autoRecalculate);
+        }
+
+        public void SetLoggingSettings(string loggingTag, LoggingFlags loggingFlags)
+        {
+            _loggingTag = loggingTag;
+            _logging = loggingFlags;
+        }
+
+        private void LogInfo(string message)
+        {
+            Debug.Log($"[{GetType().Name}]{LoggingTag} {message}");
+        }
+
+        private void LogModificatorAction(FloatModificator floatModificator, string action)
+        {
+            if (!_logging.HasFlag(LoggingFlags.Modificators)) return;
+            StringBuilder stringBuilder = new StringBuilder("Modificator ")
+                .Append(action)
+                .Append(": ")
+                .Append(floatModificator.ToString());
+            LogInfo(stringBuilder.ToString());
+        }
+
+        private void LogValue()
+        {
+            if (!_logging.HasFlag(LoggingFlags.Value)) return;
+            LogInfo($"Value: {Value}");
+        }
+
+        private void LogInitialValue()
+        {
+            if (!_logging.HasFlag(LoggingFlags.InitialValue)) return;
+            LogInfo($"Initial Value: {InitialValue}");
         }
     }
 }
