@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Raccoons.Maths.Numbers
@@ -26,6 +27,10 @@ namespace Raccoons.Maths.Numbers
             this.initialValue = initialValue;
         }
 
+        public AdvancedFloat() : this(0)
+        {
+        }
+
         public event EventHandler<float> OnValueChanged;
         public event EventHandler<FloatModificator> OnModificatorAdded;
         public event EventHandler<FloatModificator> OnModificatorRemoved;
@@ -33,6 +38,33 @@ namespace Raccoons.Maths.Numbers
         public bool NeedsRecalculation { get; private set; } = false;
         public float Value => float.IsNaN(_cachedValue) ? InitialValue : _cachedValue;
         public float InitialValue { get => initialValue; }
+
+        public IEnumerable<FloatModificator> GetAllOrderedModificators()
+        {
+            var result = new List<FloatModificator>();
+            System.Array.ForEach(_groupedModificators, group => result.AddRange(group));
+            return result;
+        }
+
+        public IEnumerable<FloatModificator> GetEarlyModificators()
+        {
+            return _earlyModificators;
+        }
+
+        public IEnumerable<FloatModificator> GetLateModificators()
+        {
+            return _lateModificators;
+        }
+
+        public IEnumerable<FloatModificator> GetAllModificators()
+        {
+            return new List<FloatModificator>().Concat(GetEarlyModificators()).Concat(GetAllOrderedModificators()).Concat(GetEarlyModificators());
+        }
+
+        public IEnumerable<FloatModificator> GetOrderedModificators(int order)
+        {
+            return _groupedModificators[order];
+        }
 
         private void SetDirty(bool willRecalculate)
         {
