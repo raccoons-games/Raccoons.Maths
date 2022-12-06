@@ -11,12 +11,15 @@ Class that implement advanced float math with modificators and multipliers. It i
 - void RemoveAllModificators(bool autoRecalculate) - removes all modificators. autoRecalculate works as always.
 - void SetInitialValue(bool autoRecalculate) - sets initial float value for AF.
 - void Recalculate() - if NeedsRecalculation, it recalculates Value.
+- IEnumerable<FloatModificator> GetXXXXModificators() - various methods to get modificator collections
+- void SetLoggingSettings(string loggingTag, LoggingFlags loggingFlags) - apply logging tag and flags for logging AF changes
 
 **Properties**
 
 - float InitialValue - initial AF value. Read-only, use SetInitialValue.
 - float Value - calculation result after applying all modificators to InitialValue.
 - bool NeedsRecalculation - true, if you performed any action with autoRecalculate=false. if false, Value is not relevant and you should call Recalculate() manually.
+- bool AddModificatorOnceOnly - if true, you can add any specific modificator only once. Any other attempts will be ignored until you remove it and try again. If false - you can add this one multiple times.
 
 **Events**
 
@@ -27,6 +30,10 @@ Class that implement advanced float math with modificators and multipliers. It i
 ### FloatModificator
 
 Class for number-modificators. It is Serializable, you can put it as inspector field.
+
+**Methods**
+
+- FloatModificator Clone() - clones modificator
 
 **Properties**
 
