@@ -11,10 +11,14 @@ namespace Raccoons.Maths.Numbers
         private AdvancedFloat advancedFloat;
 
         [SerializeField]
+        private AdvancedFloat.LoggingFlags loggingFlags = AdvancedFloat.LoggingFlags.None;
+
+        [SerializeField]
         private List<FloatModificator> modificators;
 
         [SerializeField]
         private float value;
+
 
         public AdvancedFloat AdvancedFloat { get => advancedFloat; }
 
@@ -28,6 +32,7 @@ namespace Raccoons.Maths.Numbers
             {
                 advancedFloat = new AdvancedFloat();
             }
+            advancedFloat.SetLoggingSettings(name, loggingFlags);
             AdvancedFloat.OnValueChanged += AdvancedFloat_OnValueChanged;
         }
 
@@ -38,6 +43,7 @@ namespace Raccoons.Maths.Numbers
 
         private void OnValidate()
         {
+            advancedFloat.SetLoggingSettings(name, loggingFlags);
             AdvancedFloat.RemoveAllModificators();
             modificators.ForEach(modificator => AdvancedFloat.AddModificator(modificator, false));
             AdvancedFloat.Recalculate();
