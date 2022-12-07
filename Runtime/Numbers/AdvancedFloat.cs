@@ -40,7 +40,7 @@ namespace Raccoons.Maths.Numbers
 
         public AdvancedFloat(float initialValue = 0, bool addModificatorOnceOnly = true)
         {
-            SetInitialValue(initialValue);
+            this.initialValue = initialValue;
             AddModificatorOnceOnly = addModificatorOnceOnly;
         }
 
