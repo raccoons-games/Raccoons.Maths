@@ -71,5 +71,15 @@ namespace Raccoons.Maths.Numbers
         {
             return OrderComparison(value2, value1);
         }
+
+        public FloatModificator Clone()
+        {
+            return new FloatModificator(modificatorType, value, order);
+        }
+
+        public override string ToString()
+        {
+            return $"Order {Order} {Type} {Value}";
+        }
     }
 }
