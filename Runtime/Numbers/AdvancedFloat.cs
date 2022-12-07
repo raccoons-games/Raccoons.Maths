@@ -38,7 +38,12 @@ namespace Raccoons.Maths.Numbers
         private string _loggingTag;
         private LoggingFlags _logging;
 
-        public AdvancedFloat(float initialValue = 0, bool addModificatorOnceOnly = true)
+        public AdvancedFloat()
+        {
+
+        }
+
+        public AdvancedFloat(float initialValue, bool addModificatorOnceOnly = true)
         {
             this.initialValue = initialValue;
             AddModificatorOnceOnly = addModificatorOnceOnly;
